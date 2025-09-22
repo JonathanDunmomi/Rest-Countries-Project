@@ -38,39 +38,19 @@ modeToggle.addEventListener('click', () => {
 
 
 // const  con = document.getElementById('countries');
- const searchCountry = () => {
-      const input = document.getElementById("searchInput").value.trim();
-      if (input === "") {
-        alert("Please enter a country name");
-        return;
-      }
-
-       fetch(`https://restcountries.com/v3.1/name/${input}`)
-        .then(res => {
-          if (!res.ok) throw new Error("Country not found");
-          return res.json();
-        })
-        .then(data => displayCountries(data))
-        .catch(err => {
-          document.getElementById("countries").innerHTML = `<p style="color:red;">${err.message}</p>`;
-        });
-    };
-
-     
-
-const loadCountryAPI = () =>{
-    fetch('https://restcountries.com/v3.1/region/africa')
-    .then (res => res.json())
+   const loadCountryAPI =() =>{
+    fetch("https://restcountries.com/v3.1/region/africa")
+    .then(res => res.json())
     .then(data => displayCountries(data))
-    .then (data => console.log(data))
-};
+   }
+   
 
-const displayCountries = countries =>{
-    // console.log(countries);
-    const countriesHTML =countries.map( country=> getCountry(country)).join('');
-    const container = document.getElementById('countries');
-    container.innerHTML = countriesHTML;
-}
+  // Display countries
+  const displayCountries = countries =>{
+     const countriesHTML = countries.map(country => getCountry(country));
+     const container = document.getElementById('countries');
+     container.innerHTML = countriesHTML.join('');
+  }
 
 const getCountry = (country) =>{
        console.log(country)
