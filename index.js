@@ -2,17 +2,20 @@ const modeToggle = document.getElementById('modeToggle');
 const body = document.body;
 const paragraphs = document.querySelectorAll('p');
 const input = document.getElementById('myInput');
-const textarea = document.getElementById('myTextarea'); // Select all <p> elements
+const textarea = document.getElementById('myTextarea');
+const searchInput = document.getElementById("searchCountry");
+const countriesContainer = document.getElementById('countries');
 
-// Check for saved mode preference in localStorage
+let allCountries = [];
+
+/* ================= DARK MODE ================= */
 const savedMode = localStorage.getItem('theme');
 if (savedMode === 'dark') {
     body.classList.add('dark-mode');
-    modeToggle.innerHTML = '🌙'; 
-    changeParagraphColor('white'); // Set initial <p> color
+    modeToggle.innerHTML = '🌙';
+    changeParagraphColor('white');
 }
 
-// Function to change paragraph text color
 function changeParagraphColor(color) {
     paragraphs.forEach(p => {
         p.style.color = color;
@@ -22,48 +25,62 @@ function changeParagraphColor(color) {
 modeToggle.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
 
-    // Change button icon and paragraph color dynamically
     if (body.classList.contains('dark-mode')) {
-        modeToggle.innerHTML = '🌙'; 
+        modeToggle.innerHTML = '🌙';
         localStorage.setItem('theme', 'dark');
-        changeParagraphColor('white'); // Change text color to white in dark mode
+        changeParagraphColor('white');
     } else {
         modeToggle.innerHTML = '☀️';
         localStorage.setItem('theme', 'light');
         changeParagraphColor('black');
-         input.classList.toggle('dark-mode');
-         textarea.classList.toggle('dark-mode'); // Change text color to black in light mode
+        input.classList.toggle('dark-mode');
+        textarea.classList.toggle('dark-mode');
     }
 });
 
-
-// const  con = document.getElementById('countries');
-   const loadCountryAPI =() =>{
+/* ================= LOAD COUNTRIES ================= */
+const loadCountryAPI = () => {
     fetch("https://restcountries.com/v3.1/region/africa")
-    .then(res => res.json())
-    .then(data => displayCountries(data))
-   }
-   
+        .then(res => res.json())
+        .then(data => {
+            allCountries = data;
+            displayCountries(allCountries);
+        });
+};
 
-  // Display countries
-  const displayCountries = countries =>{
-     const countriesHTML = countries.map(country => getCountry(country));
-     const container = document.getElementById('countries');
-     container.innerHTML = countriesHTML.join('');
-  }
+/* ================= SEARCH FUNCTION ================= */
+searchInput.addEventListener("input", () => {
+    const searchText = searchInput.value.toLowerCase();
 
-const getCountry = (country) =>{
-       console.log(country)
-       return `
-         <div class="country-div">
-         <h2>${country.name.common}</h2>
-         <img src="${country.flags.png}">
-         <h4>Population: ${country.population} </h4>
-         <h4>Region:  ${country.region} </h4>
-         <h4>Capital:  ${country.capital} </h4>
-         </div>
-       `
-}
+    const filteredCountries = allCountries.filter(country =>
+        country.name.common.toLowerCase().includes(searchText)
+    );
 
-loadCountryAPI()
+    displayCountries(filteredCountries);
+});
+
+/* ================= DISPLAY COUNTRIES ================= */
+const displayCountries = countries => {
+    countriesContainer.innerHTML = "";
+
+    if (countries.length === 0) {
+        countriesContainer.innerHTML = "<p>No country found</p>";
+        return;
+    }
+
+    countries.forEach(country => {
+        countriesContainer.innerHTML += `
+            <div class="country-div">
+                <h2>${country.name.common}</h2>
+                <img src="${country.flags.png}" alt="${country.name.common}">
+                <h4>Population: ${country.population.toLocaleString()}</h4>
+                <h4>Region: ${country.region}</h4>
+                <h4>Capital: ${country.capital ? country.capital[0] : 'N/A'}</h4>
+            </div>
+        `;
+    });
+};
+
+loadCountryAPI();
+
 
